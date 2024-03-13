@@ -16,13 +16,15 @@ labels = {
 }
 
 
-def feature_extraction(vectorizer: TfidfVectorizer, data: pd.Series, train=True):
+def feature_extraction(vectorizer: TfidfVectorizer, data: pd.Series, fit=True):
     """Extract features from data
 
+    :param vectorizer: Vectorizer object
     :param data: Data in text format
-    :return: Extracted features
+    :param train: If vectorizer is to be fitted or not, defaults to True
+    :return: _description_
     """
-    if train:
+    if fit:
         return vectorizer.fit_transform(data)
     return vectorizer.transform(data)
 
@@ -30,6 +32,7 @@ def feature_extraction(vectorizer: TfidfVectorizer, data: pd.Series, train=True)
 def get_dataset(train=True):
     """Load training and testing datasets
 
+    :param train: If training dataset or test dataset is to be loaded, defaults to True
     :return: training and testing datasets, divided by text and label
     """
     # Getting file path and remove classification folder, if necessary
@@ -68,14 +71,22 @@ def load_model(file_path="model.sav"):
     return loaded_model
 
 
-def main():
-    """Create, train and save model for emotion classification
+def extract_train_features():
+    """Load and extract train features
+
+    :return: Training features and respective labels
     """
     # Getting dfs
     train_data, train_labels = get_dataset()
     # Extracting features
     train_features = feature_extraction(tfidf_vectorizer, train_data)
-    
+    return train_features, train_labels
+
+
+def main():
+    """Create, train and save model for emotion classification
+    """
+    train_features, train_labels = extract_train_features()
     # Creating model and training
     model = SVC()
     print("Training Model")
