@@ -30,7 +30,7 @@ def pre_process(dataframe: pd.DataFrame):
     # Only keeping data matching desired sentiments
     dataframe = dataframe[dataframe["label"].isin([0, 1, 3])]
     # Changing label 3 to be 2 so labels are in [0, 1, 2] interval
-    dataframe.loc["label"] = dataframe["label"].replace(3, 2)
+    dataframe["label"] = dataframe["label"].replace(3, 2)
     # Removing Na values
     dataframe.dropna(inplace=True)
     return dataframe
