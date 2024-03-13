@@ -4,11 +4,11 @@ import pickle
 import pandas as pd
 from sklearn.svm import SVC
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import train_test_split
 
 
 nltk.download('stopwords')
 stop_words = nltk.corpus.stopwords.words('portuguese')
-tfidf_vectorizer = TfidfVectorizer(max_features=10_000)
 labels = {
         0: "tristeza", 
         1: "felicidade", 
@@ -29,7 +29,7 @@ def feature_extraction(vectorizer: TfidfVectorizer, data: pd.Series, fit=True):
     return vectorizer.transform(data)
 
 
-def get_dataset(train=True):
+def get_dataset(train: bool = True):
     """Load training and testing datasets
 
     :param train: If training dataset or test dataset is to be loaded, defaults to True
@@ -39,39 +39,44 @@ def get_dataset(train=True):
     files_path = os.getcwd().replace("\\classification", "")
     files_path = os.path.join(files_path, "data")
     
-    # Loading DataFrames
+    # Loading DataFrame
+    data = pd.read_csv(os.path.join(files_path, "prompt_generated.csv"))
+    
+    # Splitting data
+    X_train, X_test, y_train, y_test = train_test_split(data["text"], data["label"], test_size=0.1)
+    
     if train:
-        data = pd.read_csv(os.path.join(files_path, "pt_training.csv"))
+        return X_train, y_train
     else:
-        data = pd.read_csv(os.path.join(files_path, "pt_test.csv"))
-    
-    # Balancing amount of rows per label
-    row_amount = min(data["label"].value_counts())
-    data = data.groupby("label").sample(row_amount)
-    
-    return data["text"], data["label"]
+        return X_test, y_test
 
 
-def save_model(model, file_path="model.sav"):
+def save_model(model: SVC, feat_extractor: TfidfVectorizer, file_path=""):
     """Save model in pickle format
 
-    :param model: NB model
+    :param model: 
     :param file_path: Path to model, defaults to "model.sav"
     """
-    pickle.dump(model, open(file_path, "wb"))
+    with open(os.path.join(file_path, 'model.pkl'),'wb') as f:
+        pickle.dump(model,f)
+    with open(os.path.join(file_path, 'feat_ext.pkl'),'wb') as f:
+        pickle.dump(feat_extractor,f)
 
 
-def load_model(file_path="model.sav"):
-    """Load model object from pickle
+def load_model(file_path=""):
+    """Load model and  object from pickle
 
-    :param file_path: Path to model, defaults to "model.sav"
-    :return: Model object
+    :param file_path: Path to objects, defaults to ""
+    :return: SVC object and TfidfVectorizer object
     """
-    loaded_model = pickle.load(open(file_path, 'rb'))
-    return loaded_model
+    with open(os.path.join(file_path, 'model.pkl'), 'rb') as f:
+        loaded_model = pickle.load(f)
+    with open(os.path.join(file_path, 'feat_ext.pkl'), 'rb') as f:
+        loaded_feat_ext = pickle.load(f)
+    return loaded_model, loaded_feat_ext
 
 
-def extract_train_features():
+def extract_train_features(tfidf_vectorizer):
     """Load and extract train features
 
     :return: Training features and respective labels
@@ -86,14 +91,15 @@ def extract_train_features():
 def main():
     """Create, train and save model for emotion classification
     """
-    train_features, train_labels = extract_train_features()
+    tfidf_vectorizer = TfidfVectorizer(max_features=10_000)
+    train_features, train_labels = extract_train_features(tfidf_vectorizer)
     # Creating model and training
     model = SVC()
     print("Training Model")
     model.fit(train_features, train_labels)
     print("Training Complete")
     
-    save_model(model)
+    save_model(model, tfidf_vectorizer)
 
 
 if __name__ == "__main__":
