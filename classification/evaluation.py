@@ -9,6 +9,12 @@ except ModuleNotFoundError:
 
 
 def plot_confusion_matrix(y_model, y_true, labels):
+    """Plots confusion matrix of results
+
+    :param y_model: Predicted labels
+    :param y_true: Ground truth
+    :param labels: Label names
+    """
     cm = confusion_matrix(y_true,y_model,normalize='true')
     _, ax = plt.subplots(figsize=(7,7))
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
@@ -19,6 +25,8 @@ def plot_confusion_matrix(y_model, y_true, labels):
 
 
 def evaluate():
+    """Evaluates model by predicting with test DataSet and plotting confusion matrix
+    """
     model, tfidf_vectorizer = load_model()
     # Getting dfs
     test_data, test_labels = get_dataset(train=False)
@@ -29,6 +37,11 @@ def evaluate():
 
 
 def classify_phrase(phrase: str):
+    """Predict sentiment of a given phrase
+
+    :param phrase: Phrase to be analysed
+    :return: Sentiment of the phrase
+    """
     model, tfidf_vectorizer = load_model("classification")
     
     # Converting string to compatible format
