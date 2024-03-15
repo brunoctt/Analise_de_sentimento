@@ -57,4 +57,5 @@ Para estas poucas frases de exemplo, o novo modelo teve menos erros, porém com 
 ## Como executar o código
 1. Criar um ambiente virtual: `python -m venv venv`
 2. Ativar o ambiente virtual: `venv\Scripts\activate.bat` (No Windows)
-3. Executar o arquivo [main](main.py): `python main.py`
+3. Instalar as bibliotecas: `pip install -r requirements.txt`
+4. Executar o arquivo [main](main.py): `python main.py`
